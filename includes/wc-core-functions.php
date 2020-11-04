@@ -1048,6 +1048,19 @@ function wc_print_js() {
  * @param  bool    $httponly Whether the cookie is only accessible over HTTP, not scripting languages like JavaScript. @since 3.6.0.
  */
 function wc_setcookie( $name, $value, $expire = 0, $secure = false, $httponly = false ) {
+	do_action( 'wc_setcookie', $name, $value, $expire, $secure, $httponly );
+}
+
+/**
+ * Action for wc_setcookie.
+ *
+ * @param  string  $name   Name of the cookie being set.
+ * @param  string  $value  Value of the cookie.
+ * @param  integer $expire Expiry of the cookie.
+ * @param  bool    $secure Whether the cookie should be served only over https.
+ * @param  bool    $httponly Whether the cookie is only accessible over HTTP, not scripting languages like JavaScript. @since 3.6.0.
+ */
+function wc_setcookie_action( $name, $value, $expire, $secure, $httponly ) {
 	if ( ! headers_sent() ) {
 		setcookie( $name, $value, $expire, COOKIEPATH ? COOKIEPATH : '/', COOKIE_DOMAIN, $secure, apply_filters( 'woocommerce_cookie_httponly', $httponly, $name, $value, $expire, $secure ) );
 	} elseif ( Constants::is_true( 'WP_DEBUG' ) ) {
@@ -1055,6 +1068,7 @@ function wc_setcookie( $name, $value, $expire = 0, $secure = false, $httponly = 
 		trigger_error( "{$name} cookie cannot be set - headers already sent by {$file} on line {$line}", E_USER_NOTICE ); // @codingStandardsIgnoreLine
 	}
 }
+add_action( 'wc_setcookie', 'wc_setcookie_action', 10, 5 );
 
 /**
  * Get the URL to the WooCommerce REST API.
